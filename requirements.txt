@@ -1,5 +1,14 @@
 streamlit
 langchain
-langchain-groq
 langchain-community
+langchain-core
+langchain-groq
+langchain-huggingface
+langchain-text-splitters
+faiss-cpu
+torch
+transformers
+PyPDF2
+pypdf
+torch
 duckduckgo-search
