@@ -16,41 +16,44 @@ search = DuckDuckGoSearchRun(name="Search")
 
 st.title("🔎 LangChain - Chat with search")
 """
-Search Engine with tools and Agents Like Wikipedia,Arxiv
+Search Engine with tools and Agents Like Wikipedia, Arxiv
 """
 
 # Sidebar for settings
 st.sidebar.title("Settings")
-api_key = "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"
+api_key = st.sidebar.text_input("Enter your Groq API key:", type="password")
 
-if "messages" not in st.session_state:
-    st.session_state["messages"] = [
-        {"role": "assistant", "content": "Hi, I'm a chatbot who can search the web. How can I help you?"}
-    ]
+if not api_key:
+    st.warning("Please enter your Groq API key to proceed.")
+else:
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = [
+            {"role": "assistant", "content": "Hi, I'm a chatbot who can search the web. How can I help you?"}
+        ]
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg['content'])
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg['content'])
 
-if prompt := st.chat_input(placeholder="What is machine learning?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
+    if prompt := st.chat_input(placeholder="What is machine learning?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.chat_message("user").write(prompt)
 
-    llm = ChatGroq(groq_api_key=api_key, model_name="Llama3-8b-8192", streaming=True)
-    tools = [search, arxiv, wiki]
+        llm = ChatGroq(groq_api_key=api_key, model_name="Llama3-8b-8192", streaming=True)
+        tools = [search, arxiv, wiki]
 
-    search_agent = initialize_agent(
-        tools,
-        llm,
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        handle_parsing_errors=True  # Ensure parsing errors are handled
-    )
+        search_agent = initialize_agent(
+            tools,
+            llm,
+            agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            handle_parsing_errors=True  # Ensure parsing errors are handled
+        )
 
-    with st.chat_message("assistant"):
-        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
-        try:
-            response = search_agent.run(st.session_state.messages, callbacks=[st_cb])
-            st.session_state.messages.append({'role': 'assistant', "content": response})
-            st.write(response)
-        except ValueError as e:
-            st.write("An error occurred while processing your request. Please try again.")
-            st.error(str(e))
+        with st.chat_message("assistant"):
+            st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
+            try:
+                response = search_agent.run(st.session_state.messages, callbacks=[st_cb])
+                st.session_state.messages.append({'role': 'assistant', "content": response})
+                st.write(response)
+            except ValueError as e:
+                st.write("An error occurred while processing your request. Please try again.")
+                st.error(str(e))
