@@ -12,3 +12,6 @@ PyPDF2
 pypdf
 torch
 duckduckgo-search
+wikipedia
+wikipedia-api
+arxiv
